@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Data Vault</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0e1a 0%, #0f172a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #00ff9d;
+        }
+        
+        .container {
+            background: rgba(10, 20, 30, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 0 50px rgba(0, 255, 157, 0.1);
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            max-width: 900px;
+            width: 90%;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+        
+        .status {
+            background: rgba(0, 255, 157, 0.1);
+            border-left: 4px solid #00ff9d;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .data-list {
+            margin-top: 30px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .data-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 157, 0.2);
+            transition: all 0.3s;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .data-item:hover {
+            background: rgba(0, 255, 157, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .timestamp {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .content {
+            word-break: break-word;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .source {
+            display: inline-block;
+            background: rgba(0, 255, 157, 0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-top: 8px;
+        }
+        
+        .error {
+            color: #ff3366;
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .error h1 {
+            font-size: 72px;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1a1f2e;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #00ff9d;
+            border-radius: 4px;
+        }
+        
+        .stats {
+            background: rgba(0, 255, 157, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <div id="content"></div>
+    </div>
+    
+    <script>
+        // СЛОЖНЫЙ ПАРОЛЬ/ТОКЕН (встроен в скрипт)
+        const SECRET_TOKEN = "n3ur0n3t_d33p_l3arn1ng_2024_sup3r_s3cur3_t0k3n_xyz789_ai_ml_dl_rl_42";
+        
+        // Хранилище данных
+        let dataStorage = [];
+        
+        // Загрузка данных из localStorage
+        function loadData() {
+            const saved = localStorage.getItem('secure_vault_data');
+            if (saved) {
+                dataStorage = JSON.parse(saved);
+            }
+        }
+        
+        // Сохранение данных
+        function saveData() {
+            localStorage.setItem('secure_vault_data', JSON.stringify(dataStorage));
+        }
+        
+        // Добавление данных
+        function addData(content, source = 'api') {
+            const newEntry = {
+                id: Date.now(),
+                timestamp: new Date().toISOString(),
+                content: content,
+                source: source
+            };
+            dataStorage.unshift(newEntry);
+            saveData();
+            return newEntry;
+        }
+        
+        // Получение всех данных
+        function getAllData() {
+            return dataStorage;
+        }
+        
+        // Отображение статистики
+        function displayStats() {
+            const sources = {};
+            dataStorage.forEach(item => {
+                sources[item.source] = (sources[item.source] || 0) + 1;
+            });
+            
+            let statsHtml = '<div class="stats">';
+            statsHtml += `📊 Всего записей: ${dataStorage.length} | `;
+            statsHtml += `📁 Источников: ${Object.keys(sources).length}`;
+            if (dataStorage.length > 0) {
+                statsHtml += ` | 🕐 Последняя: ${new Date(dataStorage[0].timestamp).toLocaleString()}`;
+            }
+            statsHtml += '</div>';
+            return statsHtml;
+        }
+        
+        // Отображение данных
+        function displayData() {
+            const contentDiv = document.getElementById('content');
+            
+            if (dataStorage.length === 0) {
+                contentDiv.innerHTML = `
+                    <div class="status">
+                        📦 Нет сохраненных данных
+                        <br><small>Используйте Python скрипт для загрузки данных</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = displayStats();
+            html += '<div class="data-list">';
+            
+            dataStorage.forEach(item => {
+                html += `
+                    <div class="data-item">
+                        <div class="timestamp">
+                            📅 ${new Date(item.timestamp).toLocaleString('ru-RU')}
+                            <span class="source">🔗 ${item.source}</span>
+                        </div>
+                        <div class="content">${escapeHtml(item.content)}</div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            contentDiv.innerHTML = html;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Обработчик API запросов
+        async function handleAPI(request) {
+            const url = new URL(request.url);
+            
+            // Получение данных
+            if (url.pathname === '/api/data' && request.method === 'GET') {
+                return new Response(JSON.stringify(getAllData()), {
+                    status: 200,
+                    headers: {'Content-Type': 'application/json'}
+                });
+            }
+            
+            // Добавление данных
+            if (url.pathname === '/api/data' && request.method === 'POST') {
+                try {
+                    const body = await request.json();
+                    if (body.content) {
+                        const newEntry = addData(body.content, body.source || 'python_script');
+                        return new Response(JSON.stringify({success: true, data: newEntry}), {
+                            status: 201,
+                            headers: {'Content-Type': 'application/json'}
+                        });
+                    }
+                } catch (e) {
+                    return new Response(JSON.stringify({success: false, error: 'Invalid data'}), {
+                        status: 400,
+                        headers: {'Content-Type': 'application/json'}
+                    });
+                }
+            }
+            
+            return new Response('Not Found', {status: 404});
+        }
+        
+        // Инициализация
+        async function init() {
+            loadData();
+            
+            // Проверяем токен доступа
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('access_token');
+            
+            // Только с правильным токеном показываем содержимое
+            if (token === SECRET_TOKEN) {
+                displayData();
+                
+                // Перехват API запросов
+                const originalFetch = window.fetch;
+                window.fetch = async function(...args) {
+                    const request = args[0];
+                    if (typeof request === 'string' && request.includes('/api/')) {
+                        const req = new Request(request, args[1]);
+                        const response = await handleAPI(req);
+                        return response;
+                    }
+                    return originalFetch.apply(this, args);
+                };
+            } else {
+                // Показываем ошибку 404 - сайт "не открывается"
+                document.getElementById('app').innerHTML = `
+                    <div class="error">
+                        <h1>404</h1>
+                        <p>Страница не найдена</p>
+                        <p style="font-size: 14px; margin-top: 20px;">The requested resource could not be found.</p>
+                        <small style="color: #666;">Error code: SECURE_ACCESS_REQUIRED</small>
+                    </div>
+                `;
+                document.title = "404 Not Found";
+            }
+        }
+        
+        // Запуск
+        init();
+    </script>
+</body>
+</html>
