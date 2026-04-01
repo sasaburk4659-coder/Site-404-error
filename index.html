@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Data Vault</title>
+    <title>Creator's Chat - Только для чтения</title>
     <style>
         * {
             margin: 0;
@@ -12,107 +12,176 @@
         }
         
         body {
-            font-family: 'Courier New', monospace;
-            background: linear-gradient(135deg, #0a0e1a 0%, #0f172a 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #00ff9d;
+            padding: 20px;
         }
         
-        .container {
-            background: rgba(10, 20, 30, 0.95);
+        .chat-container {
+            background: white;
             border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 0 50px rgba(0, 255, 157, 0.1);
-            border: 1px solid rgba(0, 255, 157, 0.3);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+            width: 100%;
             max-width: 900px;
-            width: 90%;
-            backdrop-filter: blur(10px);
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
         
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 2em;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: white;
         }
         
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 0.9em;
+        .chat-header h1 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
-        .status {
-            background: rgba(0, 255, 157, 0.1);
-            border-left: 4px solid #00ff9d;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            font-size: 14px;
+        .chat-header p {
+            font-size: 0.85em;
+            opacity: 0.9;
         }
         
-        .data-list {
-            margin-top: 30px;
-            max-height: 500px;
+        .creator-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            font-weight: normal;
+        }
+        
+        .messages-area {
+            flex: 1;
             overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
         
-        .data-item {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 255, 157, 0.2);
-            transition: all 0.3s;
-            animation: fadeIn 0.5s ease;
+        .message {
+            animation: fadeInUp 0.3s ease;
+            display: flex;
+            justify-content: flex-start;
         }
         
-        .data-item:hover {
-            background: rgba(0, 255, 157, 0.1);
-            transform: translateX(5px);
+        .message-wrapper {
+            max-width: 70%;
+            min-width: 200px;
         }
         
-        .timestamp {
-            font-size: 11px;
-            color: #888;
-            margin-bottom: 8px;
+        .message-bubble {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
         
-        .content {
+        .creator-message .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .message-sender {
+            font-size: 0.75em;
+            margin-bottom: 5px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .creator-message .message-sender {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .creator-icon {
+            font-size: 1em;
+        }
+        
+        .message-text {
+            font-size: 0.95em;
+            line-height: 1.4;
             word-break: break-word;
-            font-size: 14px;
-            line-height: 1.5;
         }
         
-        .source {
-            display: inline-block;
-            background: rgba(0, 255, 157, 0.2);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            margin-top: 8px;
+        .message-time {
+            font-size: 0.65em;
+            margin-top: 5px;
+            opacity: 0.7;
         }
         
-        .error {
-            color: #ff3366;
+        .chat-input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+        
+        .send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .send-btn:active {
+            transform: translateY(0);
+        }
+        
+        .warning {
             text-align: center;
-            padding: 60px 20px;
+            color: #ff6b6b;
+            font-size: 0.75em;
+            margin-top: 10px;
+            padding: 8px;
+            background: #fff5f5;
+            border-radius: 10px;
         }
         
-        .error h1 {
-            font-size: 72px;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes fadeIn {
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(-10px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
@@ -125,130 +194,210 @@
         }
         
         ::-webkit-scrollbar-track {
-            background: #1a1f2e;
+            background: #f1f1f1;
         }
         
         ::-webkit-scrollbar-thumb {
-            background: #00ff9d;
+            background: #667eea;
             border-radius: 4px;
         }
         
         .stats {
-            background: rgba(0, 255, 157, 0.05);
+            background: #e3f2fd;
             padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 12px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            text-align: center;
+            color: #1976d2;
+            margin-bottom: 15px;
         }
         
-        .api-endpoint {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 20px;
-            font-size: 11px;
-            font-family: monospace;
-            word-break: break-all;
+        .error-page {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 20px;
+        }
+        
+        .error-page h1 {
+            font-size: 72px;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+        }
+        
+        .error-page p {
+            color: #666;
+        }
+        
+        .empty-chat {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .empty-chat-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="app">
+    <div class="chat-container" id="chatContainer">
         <div id="content"></div>
     </div>
     
     <script>
-        // СЛОЖНЫЙ ПАРОЛЬ/ТОКЕН
-        const SECRET_TOKEN = "n3ur0n3t_d33p_l3arn1ng_2024_sup3r_s3cur3_t0k3n_xyz789_ai_ml_dl_rl_42";
+        // Секретный токен для отправки сообщений
+        const SECRET_TOKEN = "cr3at0r_ch4nn3l_s3cr3t_t0k3n_2024_ai_ml_deep_xyz";
         
-        // Используем localStorage для хранения данных
-        let dataStorage = [];
+        // Хранилище сообщений
+        let messages = [];
         
-        // Загрузка данных из localStorage
-        function loadData() {
-            const saved = localStorage.getItem('secure_vault_data');
+        // Загрузка сообщений из localStorage
+        function loadMessages() {
+            const saved = localStorage.getItem('creator_chat_messages');
             if (saved) {
-                dataStorage = JSON.parse(saved);
+                messages = JSON.parse(saved);
                 return true;
             }
             return false;
         }
         
-        // Сохранение данных
-        function saveData() {
-            localStorage.setItem('secure_vault_data', JSON.stringify(dataStorage));
+        // Сохранение сообщений
+        function saveMessages() {
+            localStorage.setItem('creator_chat_messages', JSON.stringify(messages));
         }
         
-        // Добавление данных
-        function addData(content, source = 'api') {
-            const newEntry = {
+        // Добавление сообщения (только от создателя)
+        function addMessage(text, isCreator = true) {
+            const newMessage = {
                 id: Date.now(),
                 timestamp: new Date().toISOString(),
-                content: content,
-                source: source
+                text: text,
+                isCreator: isCreator
             };
-            dataStorage.unshift(newEntry);
-            saveData();
-            return newEntry;
+            messages.push(newMessage);
+            saveMessages();
+            return newMessage;
         }
         
-        // Получение всех данных
-        function getAllData() {
-            return dataStorage;
+        // Получение всех сообщений
+        function getAllMessages() {
+            return messages;
         }
         
-        // Отображение статистики
-        function displayStats() {
-            const sources = {};
-            dataStorage.forEach(item => {
-                sources[item.source] = (sources[item.source] || 0) + 1;
-            });
+        // Форматирование времени
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
             
-            let statsHtml = '<div class="stats">';
-            statsHtml += `📊 Всего записей: ${dataStorage.length} | `;
-            statsHtml += `📁 Источников: ${Object.keys(sources).length}`;
-            if (dataStorage.length > 0) {
-                statsHtml += ` | 🕐 Последняя: ${new Date(dataStorage[0].timestamp).toLocaleString()}`;
+            // Если сообщение сегодня
+            if (diff < 86400000 && date.getDate() === now.getDate()) {
+                return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
             }
-            statsHtml += '</div>';
-            return statsHtml;
+            // Если в этом году
+            else if (date.getFullYear() === now.getFullYear()) {
+                return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+            }
+            // Старые сообщения
+            else {
+                return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+            }
         }
         
-        // Отображение данных
-        function displayData() {
+        // Отображение сообщений
+        function displayMessages() {
             const contentDiv = document.getElementById('content');
             
-            if (dataStorage.length === 0) {
-                contentDiv.innerHTML = `
-                    <div class="status">
-                        📦 Нет сохраненных данных
-                        <br><small>Используйте Python скрипт для загрузки данных</small>
-                    </div>
-                    <div class="api-endpoint">
-                        🔐 API Endpoint: /api/data<br>
-                        🔑 Token: ${SECRET_TOKEN.substring(0, 30)}...
+            if (!contentDiv) return;
+            
+            let html = `
+                <div class="chat-header">
+                    <h1>
+                        💬 Creator's Chat
+                        <span class="creator-badge">👑 Только для чтения</span>
+                    </h1>
+                    <p>Сообщения может отправлять только создатель через специальный скрипт</p>
+                </div>
+                <div class="messages-area" id="messagesArea">
+            `;
+            
+            if (messages.length === 0) {
+                html += `
+                    <div class="empty-chat">
+                        <div class="empty-chat-icon">💬</div>
+                        <p>Пока нет сообщений от создателя</p>
+                        <small style="color: #999;">Сообщения появятся здесь, когда создатель отправит их через Python скрипт</small>
                     </div>
                 `;
-                return;
+            } else {
+                // Показываем ВСЕ сообщения (и от создателя, и от обычных пользователей)
+                // Но обычные пользователи не могут отправлять, только создатель
+                messages.forEach(msg => {
+                    if (msg.isCreator) {
+                        // Сообщение от создателя
+                        html += `
+                            <div class="message creator-message">
+                                <div class="message-wrapper">
+                                    <div class="message-bubble">
+                                        <div class="message-sender">
+                                            <span class="creator-icon">👑</span>
+                                            Создатель
+                                        </div>
+                                        <div class="message-text">
+                                            ${escapeHtml(msg.text)}
+                                        </div>
+                                        <div class="message-time">
+                                            ${formatTime(msg.timestamp)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // Сообщение от обычного пользователя (но таких не будет, т.к. отправка заблокирована)
+                        html += `
+                            <div class="message">
+                                <div class="message-wrapper">
+                                    <div class="message-bubble" style="background: #e0e0e0;">
+                                        <div class="message-sender" style="color: #666;">
+                                            👤 Пользователь
+                                        </div>
+                                        <div class="message-text">
+                                            ${escapeHtml(msg.text)}
+                                        </div>
+                                        <div class="message-time">
+                                            ${formatTime(msg.timestamp)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
             }
             
-            let html = displayStats();
-            html += '<div class="data-list">';
-            
-            dataStorage.forEach(item => {
-                html += `
-                    <div class="data-item">
-                        <div class="timestamp">
-                            📅 ${new Date(item.timestamp).toLocaleString('ru-RU')}
-                            <span class="source">🔗 ${item.source}</span>
-                        </div>
-                        <div class="content">${escapeHtml(item.content)}</div>
+            html += `
+                </div>
+                <div class="chat-input-area">
+                    <div class="input-group">
+                        <input type="text" class="chat-input" placeholder="Отправлять сообщения может только создатель..." id="messageInput" disabled>
+                        <button class="send-btn" disabled>Отправить</button>
                     </div>
-                `;
-            });
+                    <div class="warning">
+                        ⚠️ Только создатель может отправлять сообщения через специальный Python скрипт
+                    </div>
+                </div>
+            `;
             
-            html += '</div>';
             contentDiv.innerHTML = html;
+            
+            // Прокрутка вниз
+            const messagesArea = document.getElementById('messagesArea');
+            if (messagesArea) {
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }
         }
         
         function escapeHtml(text) {
@@ -257,70 +406,59 @@
             return div.innerHTML;
         }
         
-        // Обработчик API запросов через hash
-        function handleAPI() {
-            const hash = window.location.hash.substring(1);
-            if (!hash) return;
-            
-            try {
-                const params = new URLSearchParams(hash);
-                const token = params.get('access_token');
-                const action = params.get('action');
-                const data = params.get('data');
-                
-                // Проверяем токен
-                if (token !== SECRET_TOKEN) {
-                    return;
-                }
-                
-                // Обрабатываем действия
-                if (action === 'add' && data) {
-                    const decodedData = decodeURIComponent(data);
-                    addData(decodedData, 'python_script');
-                    console.log('Data added:', decodedData);
-                    // Очищаем hash после обработки
-                    window.location.hash = '';
-                    // Обновляем отображение
-                    displayData();
-                } else if (action === 'get') {
-                    // Возвращаем данные в localStorage (можно через alert для отладки)
-                    console.log('Data requested');
-                }
-            } catch(e) {
-                console.error('API error:', e);
+        // Отправка сообщения (только через API)
+        function sendMessageViaAPI(message) {
+            if (!message || message.trim() === "") {
+                return false;
             }
+            
+            addMessage(message, true);
+            displayMessages();
+            return true;
         }
         
-        // Инициализация
-        async function init() {
-            loadData();
-            
-            // Проверяем токен доступа в URL
+        // Обработка API запросов через URL параметры
+        function handleAPICall() {
             const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('access_token');
+            const token = urlParams.get('token');
+            const action = urlParams.get('action');
+            const message = urlParams.get('message');
             
-            // Только с правильным токеном показываем содержимое
-            if (token === SECRET_TOKEN) {
-                displayData();
-                // Обрабатываем API вызовы через hash
-                window.addEventListener('hashchange', handleAPI);
-                handleAPI(); // Обрабатываем начальный hash
-            } else {
-                // Показываем ошибку 404 - сайт "не открывается"
-                document.getElementById('app').innerHTML = `
-                    <div class="error">
-                        <h1>404</h1>
-                        <p>Страница не найдена</p>
-                        <p style="font-size: 14px; margin-top: 20px;">The requested resource could not be found.</p>
-                        <small style="color: #666;">Error code: SECURE_ACCESS_REQUIRED</small>
-                    </div>
-                `;
-                document.title = "404 Not Found";
+            // Проверяем токен создателя
+            if (token !== SECRET_TOKEN) {
+                return false;
             }
+            
+            // Обработка добавления сообщения
+            if (action === 'add' && message) {
+                const decodedMessage = decodeURIComponent(message);
+                sendMessageViaAPI(decodedMessage);
+                // Очищаем URL после обработки
+                window.history.replaceState({}, document.title, window.location.pathname);
+                return true;
+            }
+            
+            return false;
         }
         
-        // Запуск
-        init();
+        // Проверка доступа к чату (всегда показываем чат)
+        function initChat() {
+            loadMessages();
+            displayMessages();
+            handleAPICall();
+            
+            // Автоматическое обновление чата при изменении URL
+            let lastUrl = window.location.href;
+            setInterval(() => {
+                if (window.location.href !== lastUrl) {
+                    lastUrl = window.location.href;
+                    handleAPICall();
+                }
+            }, 500);
+        }
+        
+        // Запуск чата
+        initChat();
     </script>
 </body>
 </html>
