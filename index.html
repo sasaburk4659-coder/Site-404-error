@@ -140,6 +140,16 @@
             margin-bottom: 20px;
             font-size: 12px;
         }
+        
+        .api-endpoint {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 11px;
+            font-family: monospace;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
@@ -148,10 +158,10 @@
     </div>
     
     <script>
-        // СЛОЖНЫЙ ПАРОЛЬ/ТОКЕН (встроен в скрипт)
+        // СЛОЖНЫЙ ПАРОЛЬ/ТОКЕН
         const SECRET_TOKEN = "n3ur0n3t_d33p_l3arn1ng_2024_sup3r_s3cur3_t0k3n_xyz789_ai_ml_dl_rl_42";
         
-        // Хранилище данных
+        // Используем localStorage для хранения данных
         let dataStorage = [];
         
         // Загрузка данных из localStorage
@@ -159,7 +169,9 @@
             const saved = localStorage.getItem('secure_vault_data');
             if (saved) {
                 dataStorage = JSON.parse(saved);
+                return true;
             }
+            return false;
         }
         
         // Сохранение данных
@@ -212,6 +224,10 @@
                         📦 Нет сохраненных данных
                         <br><small>Используйте Python скрипт для загрузки данных</small>
                     </div>
+                    <div class="api-endpoint">
+                        🔐 API Endpoint: /api/data<br>
+                        🔑 Token: ${SECRET_TOKEN.substring(0, 30)}...
+                    </div>
                 `;
                 return;
             }
@@ -241,63 +257,54 @@
             return div.innerHTML;
         }
         
-        // Обработчик API запросов
-        async function handleAPI(request) {
-            const url = new URL(request.url);
+        // Обработчик API запросов через hash
+        function handleAPI() {
+            const hash = window.location.hash.substring(1);
+            if (!hash) return;
             
-            // Получение данных
-            if (url.pathname === '/api/data' && request.method === 'GET') {
-                return new Response(JSON.stringify(getAllData()), {
-                    status: 200,
-                    headers: {'Content-Type': 'application/json'}
-                });
-            }
-            
-            // Добавление данных
-            if (url.pathname === '/api/data' && request.method === 'POST') {
-                try {
-                    const body = await request.json();
-                    if (body.content) {
-                        const newEntry = addData(body.content, body.source || 'python_script');
-                        return new Response(JSON.stringify({success: true, data: newEntry}), {
-                            status: 201,
-                            headers: {'Content-Type': 'application/json'}
-                        });
-                    }
-                } catch (e) {
-                    return new Response(JSON.stringify({success: false, error: 'Invalid data'}), {
-                        status: 400,
-                        headers: {'Content-Type': 'application/json'}
-                    });
+            try {
+                const params = new URLSearchParams(hash);
+                const token = params.get('access_token');
+                const action = params.get('action');
+                const data = params.get('data');
+                
+                // Проверяем токен
+                if (token !== SECRET_TOKEN) {
+                    return;
                 }
+                
+                // Обрабатываем действия
+                if (action === 'add' && data) {
+                    const decodedData = decodeURIComponent(data);
+                    addData(decodedData, 'python_script');
+                    console.log('Data added:', decodedData);
+                    // Очищаем hash после обработки
+                    window.location.hash = '';
+                    // Обновляем отображение
+                    displayData();
+                } else if (action === 'get') {
+                    // Возвращаем данные в localStorage (можно через alert для отладки)
+                    console.log('Data requested');
+                }
+            } catch(e) {
+                console.error('API error:', e);
             }
-            
-            return new Response('Not Found', {status: 404});
         }
         
         // Инициализация
         async function init() {
             loadData();
             
-            // Проверяем токен доступа
+            // Проверяем токен доступа в URL
             const urlParams = new URLSearchParams(window.location.search);
             const token = urlParams.get('access_token');
             
             // Только с правильным токеном показываем содержимое
             if (token === SECRET_TOKEN) {
                 displayData();
-                
-                // Перехват API запросов
-                const originalFetch = window.fetch;
-                window.fetch = async function(...args) {
-                    const request = args[0];
-                    if (typeof request === 'string' && request.includes('/api/')) {
-                        const req = new Request(request, args[1]);
-                        const response = await handleAPI(req);
-                        return response;
-                    }
-                    return originalFetch.apply(this, args);
-                };
+                // Обрабатываем API вызовы через hash
+                window.addEventListener('hashchange', handleAPI);
+                handleAPI(); // Обрабатываем начальный hash
             } else {
                 // Показываем ошибку 404 - сайт "не открывается"
                 document.getElementById('app').innerHTML = `
